@@ -1,0 +1,13 @@
+{
+  "name": "clinical-r-marketplace",
+  "owner": {
+    "name": "anshuamn"
+  },
+  "plugins": [
+    {
+      "name": "clinical-r-assistant",
+      "source": "./plugins/clinical-r-assistant",
+      "description": "Custom clinical R programming rules and validation workflows for CDISC-compliant statistical programming with GxP compliance, PII guardrails, and TLF generation."
+    }
+  ]
+}
