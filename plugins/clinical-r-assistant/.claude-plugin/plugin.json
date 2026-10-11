@@ -1,0 +1,14 @@
+{
+    "name": "clinical-r-assistant",
+    "version": "1.0.0",
+    "description": "Custom clinical R programming rules and validation workflows for clinical programming, CDISC compliance, and TLF reporting.",
+    "author": {
+        "name": "anshuaman"
+    },
+    "license": "MIT",
+    "skills": [
+        "skills/clinical-workflow/SKILL.md",
+        "skills/data-validation/SKILL.md",
+        "skills/reporting-standards/SKILL.md"
+    ]
+}
