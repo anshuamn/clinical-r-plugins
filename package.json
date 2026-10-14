@@ -7,10 +7,7 @@
                   "build": "vite build",
                       "preview": "vite preview"
                         },
-                          "dependencies": {
-                              "@webr/webassembly": "^0.3.0"
-                                },
-                                  "devDependencies": {
+                                "devDependencies": {
                                       "vite": "^5.0.0"
                                         }
-                                        }
+                                        
