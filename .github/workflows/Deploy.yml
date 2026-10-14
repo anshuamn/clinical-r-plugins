@@ -1,0 +1,89 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate sample ADSL data
+        run: |
+          mkdir -p public/data
+          cat > generate_adsl.R << 'EOF'
+          library(haven)
+          library(dplyr)
+          set.seed(123)
+          n <- 200
+          adsl <- tibble(
+            STUDYID = "PROTOCOL-001",
+            USUBJID = sprintf("PROTOCOL-001-%03d", 1:n),
+            SITEID = sample(sprintf("%03d", 1:10), n, replace = TRUE),
+            AGE = pmax(18, pmin(85, round(rnorm(n, 55, 15)))),
+            AGEU = "YEARS",
+            SEX = sample(c("M", "F"), n, replace = TRUE, prob = c(0.55, 0.45)),
+            RACE = sample(c("WHITE", "BLACK OR AFRICAN AMERICAN", "ASIAN", "OTHER"), 
+                          n, replace = TRUE, prob = c(0.7, 0.15, 0.1, 0.05)),
+            ETHNIC = sample(c("HISPANIC OR LATINO", "NOT HISPANIC OR LATINO"), 
+                            n, replace = TRUE, prob = c(0.2, 0.8)),
+            ARM = factor(sample(c("Placebo", "Drug A 10mg", "Drug A 20mg"), n, replace = TRUE),
+                         levels = c("Placebo", "Drug A 10mg", "Drug A 20mg")),
+            ARMCD = factor(ARM, labels = c("PBO", "D10", "D20")),
+            SAFFL = "Y",
+            ITTFL = "Y",
+            PPROTFL = sample(c("Y", "N"), n, replace = TRUE, prob = c(0.9, 0.1)),
+            RANDFL = "Y"
+          )
+          haven::write_xpt(adsl, "public/data/ADSL.xpt")
+          message("Created public/data/ADSL.xpt with ", n, " subjects")
+          EOF
+          # Install R and packages if not present
+          if ! command -v Rscript &> /dev/null; then
+            sudo apt-get update && sudo apt-get install -y r-base r-cran-haven r-cran-dplyr
+          fi
+          Rscript generate_adsl.R
+
+      - name: Build with Vite
+        run: npm run build
+        env:
+          # Set base path for GitHub Pages (repo name)
+          BASE_PATH: /${{ github.event.repository.name }}/
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
