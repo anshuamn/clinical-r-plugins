@@ -22,5 +22,5 @@ export default defineConfig({
     }
   },
   worker: { format: 'es' },
-  optimizeDeps: { exclude: ['@webr/webassembly', '@webr/shiny'] }
+  optimizeDeps: { exclude: ['@webr/webassembly'] }
 });

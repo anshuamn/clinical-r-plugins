@@ -1,6 +1,3 @@
-import { WebR } from '@webr/webassembly';
-import { Shiny } from '@webr/shiny';
-
 const loadingOverlay = document.getElementById('loading-overlay');
 const loadingText = document.getElementById('loading-text');
 const appContainer = document.getElementById('shiny-app');
